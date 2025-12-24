@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1766582886405-1
+      author: Professional (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: role
+                  type: VARCHAR(255)
+            tableName: user_roles
+  - changeSet:
+      id: 1766582886405-2
+      author: Professional (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_users
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: username
+                  type: VARCHAR(256)
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: enabled
+                  type: BOOLEAN
+              - column:
+                  name: created_at
+                  type: DATETIME
+              - column:
+                  name: updated_at
+                  type: DATETIME
+            tableName: users
+  - changeSet:
+      id: 1766582886405-3
+      author: Professional (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addUniqueConstraint:
+            columnNames: username
+            constraintName: UC_USERS_USERNAME
+            tableName: users
+  - changeSet:
+      id: 1766582886405-4
+      author: Professional (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_roles
+            constraintName: FK_USER_ROLES_ON_USER
+            referencedColumnNames: id
+            referencedTableName: users
+

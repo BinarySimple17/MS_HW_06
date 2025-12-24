@@ -1,0 +1,24 @@
+[versions]
+spring-boot = "3.5.8"
+spring-dependency-management = "1.1.7"
+lombok = "1.18.34"
+junit = "5.11.0"
+liquibase = "4.28.0"
+jakarta-validation = "3.0.2"
+springdoc-openapi = "2.8.14"
+
+[libraries]
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+liquibase-core = { group = "org.liquibase", name = "liquibase-core", version.ref = "liquibase" }
+jakarta-validation-api = { group = "jakarta.validation", name = "jakarta.validation-api", version.ref = "jakarta-validation" }
+spring-boot-actuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator", version.ref = "spring-boot" }
+postgresql = { group = "org.postgresql", name = "postgresql", version = "42.7.3" }
+spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test", version.ref = "spring-boot" }
+springdoc-openapi-ui = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc-openapi" }
+
+junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
