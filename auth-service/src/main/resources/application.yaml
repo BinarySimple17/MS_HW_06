@@ -30,6 +30,12 @@ spring:
 server:
   port: 8080
 
+# Конфигурация для подключения к users-service
+users:
+  service:
+    url: http://localhost:8081
+#    url: http://users-service:8080
+
 logging:
   level:
     ru.binarysimple: INFO

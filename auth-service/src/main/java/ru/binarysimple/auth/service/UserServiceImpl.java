@@ -9,10 +9,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.binarysimple.auth.dto.LoginRequestDto;
-import ru.binarysimple.auth.dto.RegisterRequestDto;
-import ru.binarysimple.auth.dto.UserDto;
-import ru.binarysimple.auth.dto.UserDtoAll;
+import ru.binarysimple.auth.client.UsersServiceClient;
+import ru.binarysimple.auth.dto.*;
 import ru.binarysimple.auth.filter.UserFilter;
 import ru.binarysimple.auth.mapper.UserMapper;
 import ru.binarysimple.auth.model.Roles;
@@ -34,6 +32,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final ObjectMapper objectMapper;
+
+    private final UsersServiceClient usersServiceClient;
 
     @Override
     public Page<UserDtoAll> getAll(UserFilter filter, Pageable pageable) {
@@ -112,6 +112,17 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(dto);
         user.setRoles(Set.of(Roles.USER.getRole()));
         User resultUser = userRepository.save(user);
+
+        CreateUserExternalDto externalDto = userMapper.toCreateUserExternalDto(dto);
+        // Создаем пользователя в users-service через REST API
+        try {
+            usersServiceClient.createUser(externalDto);
+        } catch (Exception e) {
+            // При ошибке создания в users-service удаляем пользователя из auth-service
+            userRepository.delete(resultUser);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Failed to create user in users service");
+        }
+
         return userMapper.toUserDto(resultUser);
     }
 

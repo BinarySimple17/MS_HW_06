@@ -4,10 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-import ru.binarysimple.auth.dto.LoginRequestDto;
-import ru.binarysimple.auth.dto.RegisterRequestDto;
-import ru.binarysimple.auth.dto.UserDto;
-import ru.binarysimple.auth.dto.UserDtoAll;
+import ru.binarysimple.auth.dto.*;
 import ru.binarysimple.auth.model.User;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
@@ -29,4 +26,6 @@ public interface UserMapper {
     User toEntity(RegisterRequestDto userDto);
 
     RegisterRequestDto toRegisterRequestDto(User user);
+
+    CreateUserExternalDto toCreateUserExternalDto(RegisterRequestDto user);
 }
