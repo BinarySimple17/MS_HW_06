@@ -18,7 +18,7 @@ import ru.binarysimple.auth.service.UserService;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/auth/users")
+@RequestMapping("/")
 @RequiredArgsConstructor
 public class UserController {
 
