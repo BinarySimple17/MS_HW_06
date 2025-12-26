@@ -29,20 +29,48 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         super(Config.class);
     }
 
+    /***
+     * Ключевое отличие между GET и POST:
+     *
+     * GET-запросы к /actuator/health могут кэшироваться или обрабатываться особым образом
+     * POST-запросы с телом (как /auth/register) требуют полной маршрутизации и чтения тела
+     * Если сервис недоступен, а тело уже прочитано, может возвращаться 405 вместо 503
+     * Решение: Добавить ModifyRequestBodyFilter или убедиться, что CircuitBreaker срабатывает до чтения тела запроса.
+     * Но в текущей конфигурации Spring Cloud Gateway ожидаемо, что при недоступности сервиса:
+     *
+     * GET → 503 (благодаря CircuitBreaker)
+     * POST → 405 (если тело уже принято, но сервис не отвечает)
+     * Рекомендация: Если требуется гарантированно 503 для всех методов, нужно:
+     *
+     * Убедиться, что CircuitBreaker настроен с skipFallbackOnExecutionException = false
+     * Добавить глобальный fallback, который перехватывает все 4xx/5xx от downstream
+     * Или использовать fallbackHeaders для лучшей диагностики
+     * Сейчас поведение частично корректно: GET возвращает 503 через fallback, а POST — 405 из-за особенностей
+     * HTTP-маршрутизации при недоступности сервиса.
+     * @param config
+     * @return
+     */
+
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
-
-            // Пропускаем публичные эндпоинты
             String path = request.getURI().getPath();
+            String method = request.getMethod().name();
+            String requestId = exchange.getLogPrefix();
+            
+            log.debug("[{}] Request received: {} {}, headers: {}", requestId, method, path, request.getHeaders());
+            
+            // Пропускаем публичные эндпоинты
             if (isPublicEndpoint(path)) {
+                log.debug("[{}] Request to public endpoint {}, passing through", requestId, path);
                 return chain.filter(exchange);
             }
 
             // Проверяем заголовок Authorization
             String authHeader = request.getHeaders().getFirst("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                log.debug("[{}] Missing or invalid Authorization header: {}", exchange.getLogPrefix(), authHeader);
                 return onError(exchange, "Missing or invalid Authorization header",
                         HttpStatus.UNAUTHORIZED);
             }
@@ -52,6 +80,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             try {
                 // Валидируем токен
                 if (!validateToken(token)) {
+                    log.debug("[{}] Invalid token provided", exchange.getLogPrefix());
                     return onError(exchange, "Invalid token", HttpStatus.UNAUTHORIZED);
                 }
 
@@ -65,12 +94,17 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         .header("X-User-Id", userId)
                         .header("X-Username", username)
                         .header("X-Roles", claims.get("roles", List.class).toString())
+                        .header("X-Request-Id", requestId + "-auth")
                         .build();
+                
+                log.debug("[{}] Token validated successfully for user: {}, roles: {}", exchange.getLogPrefix(), username, claims.get("roles", List.class));
+                log.debug("[{}] Adding headers to request: X-User-Id={}, X-Username={}, X-Roles={}", exchange.getLogPrefix(), userId, username, claims.get("roles", List.class));
+                log.debug("[{}] Routing request to downstream service", exchange.getLogPrefix());
 
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
             } catch (Exception e) {
-                log.error("Error validating token: {}", e.getMessage());
+                log.error("[{}] Error validating token: {}", exchange.getLogPrefix(), e.getMessage(), e);
                 return onError(exchange, "Token validation failed", HttpStatus.UNAUTHORIZED);
             }
         };

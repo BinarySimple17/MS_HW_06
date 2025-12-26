@@ -71,7 +71,7 @@ public class UserController {
         return userService.register(dto);
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public UserDto login(@RequestBody LoginRequestDto loginRequestDto) {
         return userService.login(loginRequestDto);
     }

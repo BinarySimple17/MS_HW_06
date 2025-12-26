@@ -17,12 +17,15 @@ spring:
           predicates:
             - Path=/auth/**
           filters:
-#            - name: AuthenticationFilter
             - name: CircuitBreaker
               args:
                 name: authService
                 fallbackUri: forward:/fallback/auth
-#            - RewritePath=/auth/(?<path>.*), /$\{path}
+            - name: AuthenticationFilter
+            - name: RewritePath
+              args:
+                regexp: /auth/(?<path>.*)
+                replacement: '/\${path}'
 
         # Защищенные маршруты для других сервисов
         - id: user-service
@@ -30,12 +33,15 @@ spring:
           predicates:
             - Path=/user/**
           filters:
+            - name: RewritePath
+              args:
+                regexp: /user/(?<path>.*)
+                replacement: '/\${path}'
             - name: AuthenticationFilter
             - name: CircuitBreaker
               args:
                 name: userService
                 fallbackUri: forward:/fallback/user
-#            - RewritePath=/user/(?<path>.*), /$\{path}
 
 #        - id: order-service
 #          uri: lb://order-service
@@ -52,6 +58,13 @@ spring:
 jwt:
   secret: ${JWT_SECRET:your-secret-key-for-jwt-signing-change-in-production}
   expiration: 3600000 # 1 час
+
+logging:
+  level:
+    org.springframework: INFO
+    ru.binarysimple: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    io.jsonwebtoken: DEBUG
 
 ## Eureka Discovery
 #eureka:

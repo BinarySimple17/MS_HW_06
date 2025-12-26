@@ -1,7 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: users-service-ingress
+  name: gateway-service-ingress
+  labels:
+    app.kubernetes.io/name: gateway-service
+    app.kubernetes.io/instance: gateway-release
 spec:
   ingressClassName: nginx # класс nginx ingress
   rules:
