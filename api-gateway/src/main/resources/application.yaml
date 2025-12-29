@@ -13,50 +13,34 @@ spring:
       routes:
         # Публичные эндпоинты аутентификации
         - id: auth-service
-          uri: lb://auth-service
+          uri: http://localhost:8090
+#          uri: lb://auth-service
           predicates:
-            - Path=/auth/**
+            - Path=/api/v1/auth/**
           filters:
+            - StripPrefix=2
             - name: CircuitBreaker
               args:
                 name: authService
                 fallbackUri: forward:/fallback/auth
-            - name: AuthenticationFilter
-            - name: RewritePath
-              args:
-                regexp: /auth/(?<path>.*)
-                replacement: '/\${path}'
 
         # Защищенные маршруты для других сервисов
         - id: user-service
-          uri: lb://user-service
+          uri: http://localhost:8100
+#          uri: lb://user-service
           predicates:
-            - Path=/user/**
+            - Path=/api/v1/user/**
           filters:
-            - name: RewritePath
-              args:
-                regexp: /user/(?<path>.*)
-                replacement: '/\${path}'
+            - StripPrefix=2
             - name: AuthenticationFilter
             - name: CircuitBreaker
               args:
                 name: userService
                 fallbackUri: forward:/fallback/user
 
-#        - id: order-service
-#          uri: lb://order-service
-#          predicates:
-#            - Path=/api/orders/**
-#          filters:
-#            - name: AuthenticationFilter
-#            - name: CircuitBreaker
-#              args:
-#                name: orderService
-#                fallbackUri: forward:/fallback/order
-
 # Настройки JWT
 jwt:
-  secret: ${JWT_SECRET:your-secret-key-for-jwt-signing-change-in-production}
+  secret: ${JWT_SECRET}
   expiration: 3600000 # 1 час
 
 logging:
@@ -86,3 +70,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+endpoints:
+  auth-service: http://localhost:8090
+  users-service: http://localhost:8100
