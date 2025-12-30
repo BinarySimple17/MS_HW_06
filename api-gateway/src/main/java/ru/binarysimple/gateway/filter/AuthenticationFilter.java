@@ -38,7 +38,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
         byte[] decodedKey = Decoders.BASE64.decode(trimmedSecret);
         log.info("Decoded JWT secret length: {} bytes", decodedKey.length); // Должно быть 32
-        log.info(Arrays.toString(decodedKey));
+//        log.info(Arrays.toString(decodedKey));
 
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.jwtExpiration = jwtExpiration;
@@ -89,11 +89,9 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 // Извлекаем claims и добавляем в заголовки
                 Claims claims = getClaims(token);
                 String username = claims.getSubject();
-//                String userId = claims.get("id", String.class);
 
                 // Добавляем информацию о пользователе в заголовки
                 ServerHttpRequest modifiedRequest = request.mutate()
-//                        .header("X-User-Id", userId)
                         .header("X-Username", username)
                         .header("X-Roles", claims.get("roles", List.class).toString())
                         .header("X-Request-Id", requestId + "-auth")
