@@ -21,7 +21,7 @@ jobs:
           cache-read-only: false
 
       - name: Make gradlew executable
-        run: chmod +x ./gradlew
+        run: chmod +x ./api-gateway/gradlew
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -46,7 +46,7 @@ jobs:
       - name: Build the Docker image
         run: |
           echo "Building Docker image with version: ${{ steps.gradle_version.outputs.VERSION }}"
-          docker build . --file Dockerfile --tag binarysimple/simple-auth-service:${{ steps.gradle_version.outputs.VERSION }}
+          docker build ./api-gateway --file Dockerfile --tag binarysimple/simple-auth-service:${{ steps.gradle_version.outputs.VERSION }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
