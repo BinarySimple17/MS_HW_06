@@ -33,7 +33,7 @@ jobs:
         id: gradle_version
         run: |
           # Простое получение версии проекта
-          VERSION=$(./gradlew properties -q | grep "version:" | cut -d ':' -f 2 | xargs)
+          VERSION=$(./api-gateway/gradlew properties -q | grep "version:" | cut -d ':' -f 2 | xargs)
           
           if [ -z "$VERSION" ]; then
             echo "Error: Could not get version from Gradle"
