@@ -48,6 +48,12 @@ dependencyManagement {
 	}
 }
 
+tasks.register("printVersion") {
+    doLast {
+        println(project.version)
+    }
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
