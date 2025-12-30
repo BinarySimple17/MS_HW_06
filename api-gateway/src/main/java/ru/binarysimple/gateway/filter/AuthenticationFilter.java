@@ -38,7 +38,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
         byte[] decodedKey = Decoders.BASE64.decode(trimmedSecret);
         log.info("Decoded JWT secret length: {} bytes", decodedKey.length); // Должно быть 32
-//        log.info(Arrays.toString(decodedKey));
+        log.info(Arrays.toString(decodedKey));
 
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.jwtExpiration = jwtExpiration;
