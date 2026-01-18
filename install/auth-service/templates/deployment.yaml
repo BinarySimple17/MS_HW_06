@@ -57,8 +57,6 @@ spec:
               value: "{{ .Values.spring.profiles.active }}"
             - name: DATASOURCE_URL
               value: jdbc:postgresql://postgresql:5432/auth_db
-            # - name: DATASOURCE_USERNAME
-            #   value: auth_user
             - name: DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
